@@ -13,8 +13,7 @@
 
 *****************************************************************************/
 
-#ifndef INCLUDED_PSHAPE_OGR_HPP
-#define INCLUDED_PSHAPE_OGR_HPP
+#pragma once
 
 #include <hexer/hexer.hpp>
 
@@ -23,9 +22,6 @@
 #include <hexer/hexer_defines.h>
 #include <hexer/Mathpair.hpp>
 #include <hexer/export.hpp>
-
-
-#ifdef HEXER_HAVE_GDAL
 
 #include "ogr_api.h"
 #include "gdal.h"
@@ -138,11 +134,8 @@ public:
 namespace writer
 {
 
-
 class OGR
 {
-
-
 public:
     OGR(std::string const& filename);
 	~OGR();
@@ -154,22 +147,17 @@ public:
 private:
     std::string m_filename;
 
-
     OGRDataSourceH m_ds;
 	OGRLayerH m_layer;
 
     void createLayer(std::string const& basename);
     void collectPath(Path* path, OGRGeometryH polygon);
-    void processGeometry(OGRLayerH m_layer, OGRFeatureH feature, OGRGeometryH polygon); 
+    void processGeometry(OGRLayerH m_layer, OGRFeatureH feature, OGRGeometryH polygon);
 	OGRGeometryH collectHexagon(HexInfo const& info, HexGrid const* grid);
     OGRGeometryH collectH3(CellBoundary b);
-
 };
 
-} // writer
+} // namespace writer
 
-} // namespace
+} // namespace hexer
 
-#endif // HEXER_HAVE_GDAL
-
-#endif // file guard

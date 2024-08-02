@@ -28,20 +28,15 @@
 #include <lazperf/las.hpp>
 #include <hexer/H3grid.hpp>
 
-
-#ifdef HEXER_HAVE_GDAL
 #include "OGR.hpp"
-#endif
 
 std::string headline(hexer::Utils::screenWidth(), '-');
-
-
 
 bool readHex(int& x, int& y, void* ctx)
 {
     static int pos = 0;
 
-    static int coords[] = {
+    static const int coords[] = {
         0, 0,
         1, 0,
         2, 1,
@@ -156,12 +151,8 @@ FormatType getDriver(std::string filename)
         return Format_LAS;
     else if (hexer::Utils::iequals(filename.substr(idx), ".LAS") || hexer::Utils::iequals(filename.substr(idx), ".LAZ"))
         return Format_LAS;
-    else {
-#ifdef HEXER_HAVE_GDAL
-
+    else
         return Format_OGR;
-#endif
-    }
 }
 
 void boundary(  std::string const& input,
@@ -186,11 +177,9 @@ void boundary(  std::string const& input,
         std::ifstream file(input, std::ios::binary);
         processLaz(grid.get(), file);
     } else {
-#ifdef HEXER_HAVE_GDAL
         reader::OGR o(input);
         o.open();
         process(grid.get(), o.reader);
-#endif
     }
 
     if (output.empty() || hexer::Utils::iequals(output, "STDOUT"))
@@ -204,10 +193,8 @@ void boundary(  std::string const& input,
     }
     else
     {
-#ifdef HEXER_HAVE_GDAL
         writer::OGR o(output);
         o.writeBoundary(grid.get());
-#endif
     }
 }
 
@@ -223,7 +210,7 @@ void density(   std::string const& input,
 
     if (density == 0)
         density = 10;
-    if (edge == 0.0) 
+    if (edge == 0.0)
         grid.reset(new HexGrid(density));
     else
         grid.reset(new HexGrid(edge, density));
@@ -234,23 +221,19 @@ void density(   std::string const& input,
         std::ifstream file(input, std::ios::binary);
         processLaz(grid.get(), file);
     } else {
-#ifdef HEXER_HAVE_GDAL
         reader::OGR o(input);
         o.open();
         process(grid.get(), o.reader);
-#endif
     }
 
-#ifdef HEXER_HAVE_GDAL
     writer::OGR o(output);
     o.writeDensity(grid.get());
-#endif
 }
 
 void densityH3( std::string const& input,
                 std::string const& output,
                 int res,
-                int density) 
+                int density)
 {
     using namespace hexer;
 
@@ -259,7 +242,7 @@ void densityH3( std::string const& input,
     if (density == 0)
         density = 10;
     if (res > 15 || res < -1) {
-        std::cerr << "Input an H3 grid cell size between 1 and 15." 
+        std::cerr << "Input an H3 grid cell size between 1 and 15."
          << "Info on H3 cell specifications can be found at https://h3geo.org/docs/core-library/restable" << std::endl;
     }
     else
@@ -268,16 +251,14 @@ void densityH3( std::string const& input,
     FormatType t = getDriver(input);
     if (t == Format_LAS) {
         std::ifstream file(input, std::ios::binary);
-        processH3(grid.get(), file); 
+        processH3(grid.get(), file);
     }
     else {
         std::cerr << "H3 processing only supported for '.las' and '.laz' files!" << std::endl;
     }
 
-#ifdef HEXER_HAVE_GDAL
     writer::OGR o(output);
     o.writeH3Density(grid.get());
-#endif
 }
 
 void OutputHelp( std::ostream & oss, hexer::ProgramArgs& args)
@@ -298,10 +279,7 @@ void OutputHelp( std::ostream & oss, hexer::ProgramArgs& args)
 
 int main(int argc, char* argv[])
 {
-
-#ifdef HEXER_HAVE_GDAL
     OGRRegisterAll();
-#endif
 
     bool bVerbose(false);
 
@@ -363,7 +341,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        if (hexer::Utils::iequals(grid, "H3")) 
+        if (hexer::Utils::iequals(grid, "H3"))
         {
             if (hexer::Utils::iequals(command, "DENSITY"))
             {
@@ -373,7 +351,7 @@ int main(int argc, char* argv[])
             else
             {
                 std::cerr << "H3 support for " << command << " not active" << std::endl;
-                return 0;  
+                return 0;
             }
         }
         else
@@ -411,9 +389,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-#ifdef HEXER_HAVE_GDAL
     OGRCleanupAll();
-#endif
-
 }
 

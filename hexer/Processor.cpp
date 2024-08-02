@@ -47,9 +47,7 @@
 #include <h3/include/h3api.h>
 #include <hexer/H3grid.hpp>
 
-#ifdef HEXER_HAVE_GDAL
 #include "gdal.h"
-#endif
 
 #include <hexer/Mathpair.hpp>
 
@@ -94,7 +92,7 @@ namespace hexer
            dist += distance(p1, p2);
         }
         return ((density * dist) / samples.size());
-    } 
+    }
 
 
 void process(HexGrid *grid, PointReader reader)
@@ -121,7 +119,7 @@ void processLaz(HexGrid *grid, std::ifstream& file)
 
     if(count < 10000)
         grid->setSampleSize(count);
-    else 
+    else
         grid->setSampleSize(10000);
 
     for(size_t i = 0; i < count; i ++) {
@@ -141,7 +139,7 @@ void processLaz(HexGrid *grid, std::ifstream& file)
     grid->findParentPaths();
 }
 
-void processH3(H3Grid *grid, std::ifstream& file) 
+void processH3(H3Grid *grid, std::ifstream& file)
 {
     lazperf::reader::generic_file l(file);
 
@@ -151,10 +149,10 @@ void processH3(H3Grid *grid, std::ifstream& file)
     uint16_t len = h.point_record_length;
     std::vector<char> buf(len, 0);
     char* buf_data = buf.data();
-    
+
     if(count < 10000)
         grid->setSampleSize(count);
-    else 
+    else
         grid->setSampleSize(10000);
 
     // add support for CRS read and reprojection -- from VLR ?
@@ -173,7 +171,7 @@ void processH3(H3Grid *grid, std::ifstream& file)
         double y_rad = degsToRads(y_int * h.scale.y + h.offset.y);
         loc.lat = y_rad;
         loc.lng = x_rad;
-        
+
         grid->addLatLng(&loc);
     }
     grid->processGrid();
@@ -210,10 +208,7 @@ std::string GetFullVersion( void )
     revs << hexerSha;
 
     os << " at revision " << revs.str().substr(0, 6);
-
-#ifdef HEXER_HAVE_GDAL
     os << " with GDAL " << GDALVersionInfo("RELEASE_NAME");
-#endif
 
     return os.str();
 }

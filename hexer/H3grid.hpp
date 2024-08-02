@@ -8,7 +8,7 @@
 
 #include <h3/include/h3api.h>
 
-namespace hexer 
+namespace hexer
 {
 
 class HEXER_DLL H3Grid
@@ -19,7 +19,7 @@ public:
           m_maxSample{10000}
     {}
     void addLatLng(LatLng *ll);
-    std::map<H3Index, int> getMap() const 
+    std::map<H3Index, int> getMap() const
         { return m_map; }
     int getRes() const
         { return m_res; }
@@ -35,10 +35,10 @@ private:
     H3Map m_map;
     /// H3 resolution of grid (0-15); -1 for auto edge length calculation
     int m_res;
-    /// Number of points that must lie in a hexagon for it to be interesting 
+    /// Number of points that must lie in a hexagon for it to be interesting
     int m_dense_limit;
     /// Vector of points to use to determine hex height.
-    std::vector<Point> m_sample;
+    std::vector<LatLng> m_sample;
     /// Maximum sample size.
     unsigned m_maxSample;
 

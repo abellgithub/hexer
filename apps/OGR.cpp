@@ -15,8 +15,6 @@
 
 #include "OGR.hpp"
 
-#ifdef HEXER_HAVE_GDAL
-
 #include <iostream>
 #include <algorithm>
 #include <sstream>
@@ -43,23 +41,16 @@ OGR::OGR(std::string filename)
 	, m_current_feature(0)
 	, m_current_geometry(0)
 {
-#ifdef HEXER_HAVE_GDAL
 	reader = std::bind(&OGR::read, std::placeholders::_1, std::placeholders::_2, this);
-#endif
-
 }
 
 OGR::~OGR()
 {
-#ifdef HEXER_HAVE_GDAL
-
 	if (m_current_feature)
 		OGR_F_Destroy(m_current_feature);
 
 	if (m_ds)
 		OGR_DS_Destroy(m_ds);
-
-#endif
 }
 
 } // reader
@@ -266,7 +257,7 @@ void OGR::processGeometry(OGRLayerH m_layer, OGRFeatureH feature, OGRGeometryH p
             << CPLGetLastErrorMsg() << "'";
         throw hexer_error(oss.str());
     }
-    OGR_F_Destroy( feature ); 
+    OGR_F_Destroy( feature );
 }
 
 OGRGeometryH OGR::collectH3(CellBoundary b)
@@ -289,7 +280,7 @@ OGRGeometryH OGR::collectH3(CellBoundary b)
         throw hexer_error(oss.str());
     }
 
-	return polygon; 
+	return polygon;
 }
 
 void OGR::writeH3Density(H3Grid *grid)
@@ -306,12 +297,12 @@ void OGR::writeH3Density(H3Grid *grid)
             OGR_F_SetFieldInteger( hFeature, OGR_F_GetFieldIndex(hFeature, "ID"),
                 iter->first);
             OGR_F_SetFieldInteger( hFeature, OGR_F_GetFieldIndex(hFeature, "COUNT"),
-                iter->second); 
+                iter->second);
             processGeometry(m_layer, hFeature, polygon);
         }
         else
-            throw hexer_error("Unable to collect H3 boundary!"); 
-    } 
+            throw hexer_error("Unable to collect H3 boundary!");
+    }
 }
 
 OGR::~OGR()
@@ -321,6 +312,4 @@ OGR::~OGR()
 
 } // namespace writer
 } // namespace hexer
-
-#endif // HEXER_HAVE_GDAL
 
