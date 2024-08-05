@@ -9,11 +9,11 @@
 
 #include <h3/include/h3api.h>
 
-namespace hexer 
+namespace hexer
 {
 
     // add stuff for processing unknown resolution
-    
+
     void H3Grid::addLatLng(LatLng *ll)
     {
         if(m_res == -1) {
@@ -77,11 +77,84 @@ namespace hexer
             throw hexer_error("Cannot find IJ coordinates!");
     }
 
-    void H3Grid::walkBounds()
+    H3Index ij2h3(CoordIJ& ij)
     {
-        for(auto it = m_possible.begin(); it != m_possible.end();) {
+        if (localIJToCell(m_origin, *ij, 0, h3) != E_SUCCESS)
+            throw hexer_error("Can't convert IJ (" + std::to_string(ij.i) + ", " +
+                std::to_string(ij.j) + ") to H3Index.");
+    }
 
+    CoordIJ& operator+(CoordIJ& c1, CoordIJ& c2)
+    {
+        return {c1.i + c2.i, c1.j + c2.j};
+    }
+
+    // Return the IJ coordinate of the next cell we're checking for density (going clockwise).
+    CoordIJ nextCoord(CoordIJ ij, int edge)
+    {
+        edge++;
+        if (edge == 6)
+            edge = 0;
+        return edgeCoord(ij, edge);
+    }
+
+    // Return the IJ coordinate of the cell across the edge.
+    CoordIJ edgeCoord(CoordIJ ij, int edge)
+    {
+        std::array<CoordIJ> offsets[ {{1, 0}, { 0, -1}, {-1, -1}, {-1, 0}, {0, 1}, {1, 1}};
+        return ij + offsets[edge];
+    }
+
+    void addEdge(s, idx, edge)
+    {
+        H3Index src = ij2h3(idx);
+        H3Index dst = ij2h3(edgeCoord(idx, edge));
+        H3Index dirEdge
+        if (cellsToDirectedEdge(src, dst, &dirEdge) != E_SUCCESS)
+            throw hexer_error("Couldn't get directed edge.
+        s.push_back(dirEdge);
+    }
+
+    Shape H3Grid::findShape()
+    {
+        Shape s;
+
+//
+//     __3_
+//  2 /    \ 4
+//   /      \
+//   \      /
+//  1 \____/ 5
+//      0
+//
+
+        if (m_possible.empty())
+            return s;
+
+        CoordIJ start = m_possible.front().second;
+        CoordIJ edge = start;
+
+        int edge = 0;
+        s.addEdge(idx, edge)
+        while (idx != start && edge != 0)
+        {
+            s.addEdge(idx, edge);
+            // If we traversed a possible root, remove it as we've dealt with its potential
+            // shape.
+            if (edge == 0)
+                m_possible.erase(ij2j3(idx));
+            CoordIJ next = nextCoord(idx, edge);
+            if (isDense(next)) // Go left
+            {
+                idx = next;
+                edge--;
+                if (edge < 0)
+                    edge = 5;
+            }
+            else  // Go right
+                edge++;
         }
+        return s;
     }
 
     void H3Grid::processH3Sample()
@@ -104,13 +177,13 @@ namespace hexer
         }
         if (m_res == -1)
             throw hexer_error("unable to calculate H3 grid size!");
-        
+
         for (auto pi = m_sample.begin(); pi != m_sample.end(); ++pi) {
             LatLng ll = *pi;
             addLatLng(&ll);
         }
         m_sample.clear();
-        std::cout << "res: " << m_res <<std::endl; 
+        std::cout << "res: " << m_res <<std::endl;
     }
 
     void H3Grid::findIJ()
@@ -126,8 +199,8 @@ namespace hexer
             }
             else {
                 throw hexer_error("H3 index not found!");
-            } 
-        } 
+            }
+        }
     }
 
 } // namespace hexer
